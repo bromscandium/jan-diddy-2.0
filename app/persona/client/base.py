@@ -23,10 +23,9 @@ async def request(
     url = f"{llm_settings.PERSONA_ENGINE_URL}{path}"
     for attempt in range(retries):
         try:
-            if not HttpClient.session:
-                logger.error("HttpClient session is not initialized")
+            if not HttpClient.session or HttpClient.session.closed:
+                logger.error("HttpClient session is not initialized or closed")
                 return None
-            
             client_timeout = aiohttp.ClientTimeout(total=timeout)
             async with HttpClient.session.request(
                 method, url, json=json, headers=_engine_headers(), timeout=client_timeout

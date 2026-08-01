@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
 COPY . .
+COPY --from=builder /app/.venv /app/.venv
 
-CMD ["sh", "-c", "aerich upgrade && python -m app.main"]
+CMD ["python", "-m", "app.main"]
