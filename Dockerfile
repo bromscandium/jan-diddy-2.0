@@ -1,4 +1,3 @@
-# Builder stage
 FROM python:3.14-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
