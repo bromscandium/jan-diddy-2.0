@@ -1,5 +1,6 @@
-import httpx
+import aiohttp
 
+from app.core.http import HttpClient
 from app.core.llm import llm_settings
 from app.core.logger import logger
 
@@ -22,14 +23,21 @@ async def request(
     url = f"{llm_settings.PERSONA_ENGINE_URL}{path}"
     for attempt in range(retries):
         try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                resp = await client.request(method, url, json=json, headers=_engine_headers())
-                if resp.status_code == 502 and attempt < retries - 1:
+            if not HttpClient.session:
+                logger.error("HttpClient session is not initialized")
+                return None
+            
+            client_timeout = aiohttp.ClientTimeout(total=timeout)
+            async with HttpClient.session.request(
+                method, url, json=json, headers=_engine_headers(), timeout=client_timeout
+            ) as resp:
+                if resp.status == 502 and attempt < retries - 1:
                     continue
                 resp.raise_for_status()
                 if key is None:
                     return True
-                return (resp.json().get(key, "") or "").strip() or None
+                data = await resp.json()
+                return (data.get(key, "") or "").strip() or None
         except Exception as exc:
             logger.warning(f"{path} failed (attempt {attempt}): {exc}")
     return None

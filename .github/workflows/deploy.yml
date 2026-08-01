@@ -24,6 +24,9 @@ jobs:
       - name: Ruff lint
         run: poetry run ruff check .
 
+      - name: Pyright type check
+        run: poetry run pyright
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +45,7 @@ jobs:
         run: poetry install
 
       - name: Run Tests (Pytest)
-        run: poetry run pytest
+        run: poetry run pytest --cov=app
         env:
           BOT_TOKEN: "123456:ABC-DEF"
           WEATHER_API_KEY: "dummy"

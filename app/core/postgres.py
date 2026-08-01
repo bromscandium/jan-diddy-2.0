@@ -1,4 +1,4 @@
-from aerich import Command
+
 from telegram.ext import Application
 from tortoise import Tortoise
 
@@ -20,13 +20,7 @@ TORTOISE_ORM = {
 
 
 async def connect_db(app: Application) -> None:
-    command = Command(tortoise_config=TORTOISE_ORM, app="models", location="./migrations")
-    await command.init()
-    applied = await command.upgrade(run_in_transaction=True)
-    if applied:
-        logger.info(f"Applied migrations: {applied}")
-    else:
-        logger.info("Database schema up to date")
+    await Tortoise.init(config=TORTOISE_ORM)
     logger.info("Connected to database")
 
 
